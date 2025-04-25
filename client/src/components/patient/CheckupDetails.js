@@ -2,7 +2,7 @@
 // client/src/components/patient/CheckupDetails.js
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api';
 import { 
   Container, 
   Typography, 
@@ -64,7 +64,7 @@ const CheckupDetails = () => {
     const fetchData = async () => {
       try {
         // First, get the checkup request
-        const requestRes = await axios.get(`/api/patients/checkup-requests`);
+        const requestRes = await api.get(`/api/patients/checkup-requests`);
         const foundRequest = requestRes.data.find(req => req._id === requestId);
         
         if (!foundRequest) {
@@ -78,7 +78,7 @@ const CheckupDetails = () => {
         // If the request is completed, fetch the result
         if (foundRequest.status === 'completed') {
           try {
-            const resultRes = await axios.get(`/api/checkup-results/${requestId}`);
+            const resultRes = await api.get(`/api/checkup-results/${requestId}`);
             setCheckupResult(resultRes.data);
           } catch (err) {
             console.error('Error fetching checkup result:', err);

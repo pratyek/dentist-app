@@ -1,16 +1,13 @@
 // client/src/context/AuthContext.js
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../services/api';
-import { API_BASE_URL } from '../config';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -23,7 +20,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async (token) => {
     try {
-      const response = await api.get('/api/users/me');
+      const response = await api.get('/api/users/current');
       setUser(response.data);
     } catch (error) {
       console.error('Error fetching user:', error);
@@ -33,40 +30,56 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (email, password, callback) => {
     try {
       const response = await api.post('/api/users/login', { email, password });
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       setUser(user);
       toast.success('Login successful');
-      navigate(user.role === 'patient' ? '/patient/dashboard' : '/dentist/dashboard');
+      
+      // Use callback for navigation instead of useNavigate
+      if (callback) {
+        callback(user.role === 'patient' ? '/patient/dashboard' : '/dentist/dashboard');
+      }
+      
+      return { success: true };
     } catch (error) {
       console.error('Login error:', error);
       toast.error(error.response?.data?.message || 'Login failed');
-      throw error;
+      return { success: false, error };
     }
   };
 
-  const register = async (userData) => {
+  const register = async (userData, callback) => {
     try {
       const response = await api.post('/api/users/register', userData);
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       setUser(user);
       toast.success('Registration successful');
-      navigate(user.role === 'patient' ? '/patient/dashboard' : '/dentist/dashboard');
+      
+      // Use callback for navigation instead of useNavigate
+      if (callback) {
+        callback(user.role === 'patient' ? '/patient/dashboard' : '/dentist/dashboard');
+      }
+      
+      return { success: true };
     } catch (error) {
       console.error('Registration error:', error);
       toast.error(error.response?.data?.message || 'Registration failed');
-      throw error;
+      return { success: false, error };
     }
   };
 
-  const logout = () => {
+  const logout = (callback) => {
     localStorage.removeItem('token');
     setUser(null);
-    navigate('/login');
+    
+    // Use callback for navigation instead of useNavigate
+    if (callback) {
+      callback('/login');
+    }
   };
 
   return (

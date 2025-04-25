@@ -1,7 +1,6 @@
 // client/src/components/patient/PatientDashboard.js
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { 
   Container, 
   Typography, 
@@ -18,6 +17,7 @@ import {
   makeStyles 
 } from '@material-ui/core';
 import { AuthContext } from '../../context/AuthContext';
+import api from '../../services/api';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -57,7 +57,7 @@ const PatientDashboard = () => {
           return;
         }
         
-        const res = await axios.get('/api/patients/checkup-requests', {
+        const res = await api.get('/api/patients/checkup-requests', {
           headers: {
             'x-auth-token': token
           }
@@ -67,7 +67,6 @@ const PatientDashboard = () => {
       } catch (err) {
         console.error('Error fetching checkup requests:', err);
         if (err.response?.status === 401) { 
-          // Handle unauthorized access
           localStorage.removeItem('token');
           window.location.href = '/login';
         }
@@ -141,7 +140,7 @@ const PatientDashboard = () => {
               <TableBody>
                 {checkupRequests.map((request) => (
                   <TableRow key={request._id}>
-                    <TableCell>{request.dentist.name}</TableCell>
+                    <TableCell>{request.dentist?.name || 'N/A'}</TableCell>
                     <TableCell>
                       {new Date(request.requestDate).toLocaleDateString()}
                     </TableCell>

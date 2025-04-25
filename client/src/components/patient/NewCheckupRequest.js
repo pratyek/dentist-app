@@ -1,7 +1,7 @@
 // client/src/components/patient/NewCheckupRequest.js
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api'
 import { 
   Container, 
   Typography, 
@@ -42,7 +42,7 @@ const NewCheckupRequest = () => {
   useEffect(() => {
     const fetchDentist = async () => {
       try {
-        const res = await axios.get(`/api/dentists`);
+        const res = await api.get(`/api/dentists`);
         const foundDentist = res.data.find(d => d._id === dentistId);
         
         if (foundDentist) {
@@ -72,7 +72,7 @@ const NewCheckupRequest = () => {
     }
     
     try {
-      const res = await axios.post('/api/checkup-requests', {
+      const res = await api.post('/api/checkup-requests', {
         dentistId,
         reason
       });

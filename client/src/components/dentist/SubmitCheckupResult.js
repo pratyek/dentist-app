@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api'
 import { 
   Container, 
   Typography, 
@@ -92,7 +92,7 @@ const SubmitCheckupResult = () => {
   useEffect(() => {
     const fetchCheckupRequest = async () => {
       try {
-        const res = await axios.get('/api/dentists/checkup-requests');
+        const res = await api.get('/api/dentists/checkup-requests');
         const foundRequest = res.data.find(req => req._id === requestId);
         
         if (!foundRequest) {
@@ -204,7 +204,7 @@ const SubmitCheckupResult = () => {
         }
       });
       
-      await axios.post('/api/checkup-results', formData, {
+      await api.post('/api/checkup-results', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

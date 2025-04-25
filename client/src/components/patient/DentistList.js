@@ -1,7 +1,7 @@
 // client/src/components/patient/DentistList.js
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api'; 
 import { 
   Container, 
   Typography, 
@@ -44,7 +44,7 @@ const DentistList = () => {
   useEffect(() => {
     const fetchDentists = async () => {
       try {
-        const res = await axios.get('/api/dentists');
+        const res = await api.get('/api/dentists');
         setDentists(res.data);
         setLoading(false);
       } catch (err) {

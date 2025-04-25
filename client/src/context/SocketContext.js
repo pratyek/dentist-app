@@ -1,33 +1,36 @@
 // client/src/context/SocketContext.js
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
-import { AuthContext } from './AuthContext';
-import { toast } from 'react-toastify';
 import { SOCKET_URL } from '../config';
+import { useAuth } from './AuthContext';
+import { toast } from 'react-toastify';
 
 const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [checkupUpdates, setCheckupUpdates] = useState({});
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (user) {
-      const token = localStorage.getItem('token');
       const newSocket = io(SOCKET_URL, {
-        auth: { token },
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
+        auth: {
+          token: localStorage.getItem('token')
+        },
+        transports: ['websocket', 'polling']
       });
 
       newSocket.on('connect', () => {
         console.log('Socket connected');
       });
 
-      newSocket.on('connect_error', (err) => {
-        console.error('Socket connection error:', err);
+      newSocket.on('connect_error', (error) => {
+        console.error('Socket connection error:', error);
+      });
+
+      newSocket.on('disconnect', () => {
+        console.log('Socket disconnected');
       });
 
       // Handle checkup request received (for dentists)
@@ -58,9 +61,7 @@ export const SocketProvider = ({ children }) => {
       setSocket(newSocket);
 
       return () => {
-        if (newSocket) {
-          newSocket.close();
-        }
+        newSocket.close();
       };
     }
   }, [user]);
@@ -76,12 +77,8 @@ export const SocketProvider = ({ children }) => {
       });
     },
     emitEvent: (eventName, data) => {
-      if (socket && socket.connected) {
-        console.log('Emitting event:', eventName, data);
+      if (socket) {
         socket.emit(eventName, data);
-      } else {
-        console.error('Socket is not connected');
-        toast.error('Connection error. Please try again.');
       }
     }
   };

@@ -1,6 +1,6 @@
 // client/src/components/dentist/PatientList.js
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api'
 import { 
   Container, 
   Typography, 
@@ -42,7 +42,7 @@ const PatientList = () => {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const res = await axios.get('/api/dentists/checkup-requests');
+        const res = await api.get('/api/dentists/checkup-requests');
         
         // Extract unique patients from all requests
         const uniquePatients = [];
