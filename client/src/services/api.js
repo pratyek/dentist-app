@@ -1,8 +1,8 @@
 // client/src/services/api.js
 import axios from 'axios';
+import { API_URL } from '../config';
 
 // Base URL for API endpoints
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3002';
 
 // Create axios instance with base URL
 const api = axios.create({
