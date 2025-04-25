@@ -280,7 +280,7 @@ const SubmitCheckupResult = () => {
             fullWidth
             label="Diagnosis"
             multiline
-            rows={4}
+            minRows={4}
             value={diagnosis}
             onChange={(e) => setDiagnosis(e.target.value)}
             required
@@ -292,7 +292,7 @@ const SubmitCheckupResult = () => {
             fullWidth
             label="Recommendations"
             multiline
-            rows={4}
+            minRows={4}
             value={recommendations}
             onChange={(e) => setRecommendations(e.target.value)}
             required

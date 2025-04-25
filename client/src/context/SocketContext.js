@@ -38,10 +38,20 @@ export const SocketProvider = ({ children }) => {
         console.log('New checkup request received:', data);
         if (user.role === 'dentist') {
           toast.info(`New checkup request from ${data.patientName}`);
+          // Add the update to the state to trigger a refresh
+          setCheckupUpdates(prev => ({
+            ...prev,
+            [data.requestId]: {
+              status: 'pending',
+              updatedAt: new Date().toISOString(),
+              patientName: data.patientName,
+              reason: data.reason
+            }
+          }));
         }
       });
 
-      // Handle checkup result received (for patients)
+      // Handle checkup result submitted (for patients)
       newSocket.on('checkup_result_submitted', (data) => {
         console.log('Checkup result received:', data);
         if (user.role === 'patient') {
@@ -96,4 +106,4 @@ export const useSocket = () => {
     throw new Error('useSocket must be used within a SocketProvider');
   }
   return context;
-}; 
+};

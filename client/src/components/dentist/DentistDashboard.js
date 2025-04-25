@@ -5,7 +5,6 @@ import api from '../../services/api'
 import { 
   Container, 
   Typography, 
-  Grid, 
   Paper, 
   Button, 
   Chip,
@@ -19,7 +18,6 @@ import {
 } from '@material-ui/core';
 import { AuthContext } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext'; 
-import { SOCKET_URL } from '../../config';
 const useStyles = makeStyles((theme) => ({
   paper: {
     padding: theme.spacing(3),
@@ -48,22 +46,25 @@ const DentistDashboard = () => {
   const { user } = useContext(AuthContext);
   const [checkupRequests, setCheckupRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { checkupUpdates } = useSocket();
+  const { socket, checkupUpdates } = useSocket();
 
   useEffect(() => {
-    const socket = new WebSocket(SOCKET_URL);
-    
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'new_checkup_request') {
-        fetchCheckupRequests();
+    const testConnection = async () => {
+      try {
+        const response = await fetch('http://localhost:3002/api/dentists');
+        if (response.ok) {
+          console.log('Server is accessible');
+        } else {
+          console.error('Server returned error:', response.status);
+        }
+      } catch (error) {
+        console.error('Cannot connect to server:', error);
       }
     };
     
-    return () => {
-      socket.close();
-    };
-    }, []);
+    testConnection();
+  }, []);
+
     const fetchCheckupRequests = async () => {
       try {
         const res = await api.get('/api/dentists/checkup-requests');
@@ -79,6 +80,31 @@ const DentistDashboard = () => {
       fetchCheckupRequests();
     }
   }, [user]);
+  useEffect(() => {
+    if (socket) {
+      console.log('Setting up socket listeners for new checkup requests');
+      
+      // Listen for new checkup requests
+      socket.on('new_checkup_request', (data) => {
+        console.log('New checkup request received:', data);
+        fetchCheckupRequests(); // Refresh the list when a new request comes in
+      });
+      
+      return () => {
+        // Clean up listeners when component unmounts
+        socket.off('new_checkup_request');
+      };
+    }
+  }, [socket]);
+
+  // Watch for checkup updates from context
+  useEffect(() => {
+    if (Object.keys(checkupUpdates).length > 0) {
+      console.log('Checkup updates detected, refreshing data');
+      fetchCheckupRequests();
+    }
+  }, [checkupUpdates]);
+
 
   return (
     <Container maxWidth="lg" style={{ marginTop: '2rem' }}>

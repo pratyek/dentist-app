@@ -128,7 +128,7 @@ const NewCheckupRequest = () => {
             label="Reason for Checkup"
             name="reason"
             multiline
-            rows={4}
+            minRows={4}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
