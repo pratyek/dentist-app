@@ -1,12 +1,12 @@
 // client/src/services/api.js
 import axios from 'axios';
-import { API_URL } from '../config';
+import { API_BASE_URL } from '../config';
 
 // Base URL for API endpoints
 
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API_BASE_URL,
 });
 
 // Add request interceptor to include token

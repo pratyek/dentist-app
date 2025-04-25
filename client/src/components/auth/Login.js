@@ -48,9 +48,10 @@ const Login = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     
-    const success = await login(formData);
-    if (success) {
-      navigate('/');
+    try {
+      await login(email, password);
+    } catch (error) {
+      console.error('Login error:', error);
     }
   };
   
