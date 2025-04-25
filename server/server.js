@@ -14,10 +14,17 @@ const setupSocket = require('./src/socket');
 
 const app = express();
 const httpServer = createServer(app);
+
+// Configure CORS for both development and production
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://dentist-app-blush.vercel.app'
+];
+
 const io = new Server(httpServer, {
   cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
   }
 });
@@ -28,13 +35,21 @@ const MONGO_URL = process.env.MONGO_URL || '';
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:3000', // Allow requests from your React app
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'x-auth-token'],
-    credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-  }));
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'x-auth-token'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 

@@ -2,6 +2,11 @@
 
 A full-stack web application for managing dental appointments and checkups between patients and dentists. Built with React, Node.js, Express, and MongoDB.
 
+## Live Demo
+
+- Frontend: [https://dentist-app-blush.vercel.app](https://dentist-app-blush.vercel.app)
+- Backend: [https://dentist-app-m1fr.onrender.com](https://dentist-app-m1fr.onrender.com)
+
 ## Features
 
 ### Patient Features
@@ -90,6 +95,8 @@ npm start
 ```
 
 ## API Endpoints
+
+All API endpoints are prefixed with the base URL: `https://dentist-app-m1fr.onrender.com`
 
 ### Authentication
 - POST /api/auth/register - Register new user

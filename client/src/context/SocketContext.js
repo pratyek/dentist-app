@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { AuthContext } from './AuthContext';
 import { toast } from 'react-toastify';
+import { SOCKET_URL } from '../config';
 
 const SocketContext = createContext();
 
@@ -14,7 +15,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (user) {
       const token = localStorage.getItem('token');
-      const newSocket = io('http://localhost:3002', {
+      const newSocket = io(SOCKET_URL, {
         auth: { token },
         reconnection: true,
         reconnectionAttempts: 5,
