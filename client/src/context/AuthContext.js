@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import api from '../api/axios';
 import { API_BASE_URL } from '../config';
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
