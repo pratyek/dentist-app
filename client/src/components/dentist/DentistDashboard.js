@@ -18,7 +18,8 @@ import {
   makeStyles 
 } from '@material-ui/core';
 import { AuthContext } from '../../context/AuthContext';
-
+import { useSocket } from '../../context/SocketContext'; 
+import { SOCKET_URL } from '../../config';
 const useStyles = makeStyles((theme) => ({
   paper: {
     padding: theme.spacing(3),
@@ -47,8 +48,22 @@ const DentistDashboard = () => {
   const { user } = useContext(AuthContext);
   const [checkupRequests, setCheckupRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { checkupUpdates } = useSocket();
 
   useEffect(() => {
+    const socket = new WebSocket(SOCKET_URL);
+    
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'new_checkup_request') {
+        fetchCheckupRequests();
+      }
+    };
+    
+    return () => {
+      socket.close();
+    };
+    }, []);
     const fetchCheckupRequests = async () => {
       try {
         const res = await api.get('/api/dentists/checkup-requests');
@@ -59,7 +74,7 @@ const DentistDashboard = () => {
         setLoading(false);
       }
     };
-
+  useEffect(() => {
     if (user) {
       fetchCheckupRequests();
     }

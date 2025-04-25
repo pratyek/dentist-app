@@ -71,7 +71,7 @@ const Register = () => {
       role
     };
     
-    const success = await register(userData);
+    const success = await register(userData,(path)=>navigate(path));
     if (success) {
       navigate('/');
     }

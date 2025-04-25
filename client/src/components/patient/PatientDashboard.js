@@ -18,6 +18,7 @@ import {
 } from '@material-ui/core';
 import { AuthContext } from '../../context/AuthContext';
 import api from '../../services/api';
+import { useSocket } from '../../context/SocketContext'; 
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -47,33 +48,40 @@ const PatientDashboard = () => {
   const { user } = useContext(AuthContext);
   const [checkupRequests, setCheckupRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { checkupUpdates } = useSocket(); 
+
+  const fetchCheckupRequests = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No authentication token found');
+        return;
+      }
+      
+      const res = await api.get('/api/patients/checkup-requests', {
+        headers: {
+          'x-auth-token': token
+        }
+      });
+      setCheckupRequests(res.data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching checkup requests:', err);
+      if (err.response?.status === 401) { 
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCheckupRequests = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          console.error('No authentication token found');
-          return;
-        }
-        
-        const res = await api.get('/api/patients/checkup-requests', {
-          headers: {
-            'x-auth-token': token
-          }
-        });
-        setCheckupRequests(res.data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching checkup requests:', err);
-        if (err.response?.status === 401) { 
-          localStorage.removeItem('token');
-          window.location.href = '/login';
-        }
-        setLoading(false);
-      }
-    };
+    if (Object.keys(checkupUpdates).length > 0) {
+      fetchCheckupRequests();
+    }
+  }, [checkupUpdates]);
 
+  useEffect(() => {
     if (user) {
       fetchCheckupRequests();
     }
