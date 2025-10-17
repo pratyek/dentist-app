@@ -49,7 +49,7 @@ const Login = () => {
     e.preventDefault();
     
     try {
-      await login(email, password);
+      await login(email, password, (path)=>navigate(path));
     } catch (error) {
       console.error('Login error:', error);
     }

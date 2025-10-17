@@ -51,7 +51,7 @@ const DentistDashboard = () => {
   useEffect(() => {
     const testConnection = async () => {
       try {
-        const response = await fetch('http://localhost:3002/api/dentists');
+        const response = await fetch('https://dentist-app-m1fr.onrender.com/api/dentists');
         if (response.ok) {
           console.log('Server is accessible');
         } else {

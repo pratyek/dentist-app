@@ -31,9 +31,11 @@ const setupSocket = (io) => {
 
     // Handle new checkup request
     socket.on('new_checkup_request', (data) => {
-      // Emit to the specific dentist
-      io.to(`dentist:${data.dentistId}`).emit('checkup_request_received', {
-        patientId: socket.user.id,
+      console.log('New checkup request received, emitting to dentist:', data.dentistId);
+      
+      // IMPORTANT: Change the event name to match what client is listening for
+      io.to(`dentist:${data.dentistId}`).emit('new_checkup_request', {
+        patientId: data.patientId,
         patientName: data.patientName,
         requestId: data.requestId,
         reason: data.reason
@@ -42,12 +44,14 @@ const setupSocket = (io) => {
 
     // Handle checkup result submission
     socket.on('checkup_result_submitted', (data) => {
-      // Emit to the specific patient
-      io.to(`patient:${data.patientId}`).emit('checkup_result_received', {
-        dentistId: socket.user.id,
+      console.log('Checkup result submitted, emitting to patient:', data.patientId);
+      
+      // IMPORTANT: Change the event name to match what client is listening for
+      io.to(`patient:${data.patientId}`).emit('checkup_result_submitted', {
+        dentistId: data.dentistId,
         dentistName: data.dentistName,
         requestId: data.requestId,
-        diagnosis: data.diagnosis
+        results: data.results
       });
     });
 
@@ -58,4 +62,4 @@ const setupSocket = (io) => {
   });
 };
 
-module.exports = setupSocket; 
+module.exports = setupSocket;

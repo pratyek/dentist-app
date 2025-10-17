@@ -18,7 +18,9 @@ const httpServer = createServer(app);
 // Configure CORS for both development and production
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://dentist-app-blush.vercel.app'
+  'https://dentist-app-blush.vercel.app',
+  // frontend production URL used in client/config.js
+  'https://dentist-app-m1fr.onrender.com'
 ];
 
 const io = new Server(httpServer, {
@@ -63,6 +65,9 @@ mongoose.connect(MONGO_URL, {
 })
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.log('MongoDB connection error:', err));
+
+// Suppress Mongoose 7 strictQuery deprecation warning
+mongoose.set('strictQuery', false);
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
@@ -139,7 +144,14 @@ const CheckupResult = mongoose.model('CheckupResult', checkupResultSchema);
 // Auth middleware
 const auth = (req, res, next) => {
   try {
-    const token = req.header('x-auth-token');
+    // Accept token in either custom header 'x-auth-token' or standard 'Authorization: Bearer <token>'
+    let token = req.header('x-auth-token');
+    if (!token) {
+      const authHeader = req.header('authorization') || req.header('Authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.slice(7);
+      }
+    }
     if (!token) {
       return res.status(401).json({ message: 'No authentication token, access denied' });
     }
